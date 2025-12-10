@@ -1,0 +1,689 @@
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Brain, CheckCircle, ChevronRight, Book, Flame, Music, AlertTriangle, Menu, X, Star, Feather, Hash, Quote } from 'lucide-react';
+
+const NightStudyGuide = () => {
+  const [activeTab, setActiveTab] = useState('chapters');
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [quizScore, setQuizScore] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [showScore, setShowScore] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  // --- CONTENT DATA ---
+
+  const chapters = [
+    {
+      id: 1,
+      title: "Section 1: Sighet & The Warning",
+      summary: "The story begins in 1941 in Sighet, Transylvania. Eliezer is a devout teenager studying Kabbalah. Moishe the Beadle, his mentor, is deported but escapes and returns to warn the Jews of mass executions, but no one believes him. By 1944, fascists take over Hungary. The Jews are forced into two ghettos. Despite opportunities to flee, the family remains. Finally, they are deported in cattle cars.",
+      analysis: [
+        "The theme of 'Denial' is central here. The Jews of Sighet simply cannot conceive of the horror described by Moishe because it defies all human logic and civilized behavior. Wiesel highlights how this optimism—usually a virtue—became fatal, as they rationalized every new restriction as 'not that bad' until it was too late to escape.",
+        "The gradual erosion of rights demonstrates the insidious nature of the Holocaust. It didn't start with gas chambers; it started with small laws, yellow stars, and ghettos. This slow strangulation of freedom accustomed the community to abuse, making them comply with orders in hopes that 'this is the worst of it,' when it was only the beginning.",
+        "Moishe the Beadle represents the 'Prophet' archetype who is ignored by his people. His transformation from a shy, awkward man to a desperate messenger highlights the trauma of witnessing a massacre. His silence at the end represents the death of his soul before his body, a precursor to what Eliezer will experience."
+      ],
+      keyPoints: ["Moishe's warning is ignored (Theme of Denial).", "The gradual stripping of rights (Yellow Star, Ghettos).", "The community's blind optimism."]
+    },
+    {
+      id: 2,
+      title: "Section 2: The Cattle Car",
+      summary: "packed into cattle cars with little air, food, or water. Madame Schächter, a woman in the car, screams about seeing 'fire' and a 'furnace'. The others beat her to silence her. The train arrives at Birkenau (part of Auschwitz), and the passengers see the flames of the crematorium, realizing Schächter was a prophet.",
+      analysis: [
+        "This section illustrates the breakdown of social norms and community under extreme stress. Faced with the terror of the unknown and tight confinement, the Jews turn on one of their own (Schächter) to maintain a sense of order. Beating her in front of her son foreshadows the later breakdown of the father-son bond that permeates the memoir.",
+        "Madame Schächter serves as a Cassandra figure—a classical prophet cursed to speak the truth but never be believed. Her hallucinations of fire are not madness but a terrifying vision of the future. The 'fire' she sees is the literal fire of the crematoria, introducing the book's most powerful symbol of Nazi destruction.",
+        "The shift from the physical world to a world of hallucinations suggests that their reality has become a nightmare. The cattle car acts as a transition vessel, stripping them of their humanity before they even reach the camp. They are no longer treated as citizens or even humans, but as cargo to be processed."
+      ],
+      keyPoints: ["Madame Schächter's foreshadowing of the crematoria.", "The breakdown of community/humanity under stress.", "Arrival at Birkenau."]
+    },
+    {
+      id: 3,
+      title: "Section 3: Birkenau & Separation",
+      summary: "Eliezer and his father are separated from his mother and sisters forever. They undergo the first 'selection'. Eliezer lies about his age (says 18) and profession (farmer) to survive. He witnesses babies being thrown into fire. He questions God for the first time ('Never shall I forget...'). They are stripped, shaved, and tattooed (A-7713). They march to Auschwitz, then Buna.",
+      analysis: [
+        "This is the spiritual turning point of the memoir. The famous 'Never Shall I Forget' passage marks the murder of Eliezer's God and his innocent soul. Seeing babies thrown into flames shatters his belief in a just and benevolent creator, initiating a struggle with faith that lasts throughout the book.",
+        "The process of dehumanization becomes systematic and physical. The shaving of heads, the stripping of clothes, and the tattooing of numbers (A-7713) are designed to erase individual identity. They are reduced to inventory components in a factory of death, distinguishing them only by their ability to work.",
+        "The separation from the female family members emphasizes the immediate destruction of the family unit. From this moment on, Eliezer's entire existence revolves around one goal: not to be separated from his father. This bond becomes his tether to humanity, even as the camp tries to sever it."
+      ],
+      keyPoints: ["Loss of identity (A-7713).", "Loss of faith begins.", "Relationship between father and son becomes the primary focus."]
+    },
+    {
+      id: 4,
+      title: "Section 4: Buna",
+      summary: "Eliezer and his father are assigned to an electrical equipment warehouse. Eliezer meets Idek (a violent Kapo) and Franek (who demands Eliezer's gold crown). Eliezer witnesses the hanging of a young 'pipel' (child assistant). Because the child is light and doesn't die instantly, the prisoners weep. Eliezer feels that God has been hanged on the gallows.",
+      analysis: [
+        "Buna represents the 'normalization' of camp life, which Wiesel portrays as just as dangerous as the initial chaos. The prisoners settle into a routine of survival, where navigating the moods of Kapos like Idek becomes a daily strategy. This routine highlights the banality of evil—terror becomes a workplace hazard.",
+        "The hanging of the Pipel is symbolically the death of God in the eyes of the prisoners. Because the child is innocent, beautiful, and silent (like an angel), his slow, agonizing death signifies that there is no divine mercy in Auschwitz. When Eliezer says the soup tasted of corpses, he means that his spiritual nourishment has been poisoned by this sight.",
+        "The incident with the gold crown shows how survival instincts begin to override dignity and loyalty. Franek uses Eliezer's father's weakness (his inability to march in step) to blackmail Eliezer. Eliezer eventually gives in not just to save his father, but to stop the torment, showing how the Nazis used family bonds as a weapon against the prisoners."
+      ],
+      keyPoints: ["The hanging of the Pipel symbolizes the death of God/innocence.", "Gold crown extraction.", "Idek's random violence."]
+    },
+    {
+      id: 5,
+      title: "Section 5: Rosh Hashanah & The Choice",
+      summary: "Jewish New Year passes; Eliezer is angry at God and refuses to fast on Yom Kippur. Another selection occurs; his father is written down but survives (gives Eliezer his 'inheritance' - a spoon and knife). Eliezer hurts his foot and goes to the infirmary. The camp is evacuated due to approaching Russians. Eliezer and his father choose to march rather than stay (ironically, those who stayed were liberated days later).",
+      analysis: [
+        "This section is heavy with dramatic irony. Eliezer and his father agonize over the decision to evacuate, believing that marching gives them a better chance at life. The reader learns that had they stayed in the infirmary, they would have been liberated by the Russians two days later. This underscores the cruel unpredictability of survival.",
+        "Eliezer's rejection of religious observance on Rosh Hashanah and Yom Kippur is an act of rebellion. By refusing to fast, he is protesting against a God he believes has abandoned His people. However, the fact that he still debates the decision shows that God is still central to his thoughts, even if only as an object of anger.",
+        "The 'Inheritance' scene is heartbreaking in its simplicity. Shlomo (the father) giving Eliezer a spoon and a knife—his only worldly possessions—highlights the absolute poverty of their existence. It forces the reader to realize that in the camps, a utensil was the difference between life (eating) and death, and this was all a father could leave his son."
+      ],
+      keyPoints: ["The 'Inheritance' (spoon and knife).", "Rejection of religious observance.", "The fatal decision to leave the infirmary."]
+    },
+    {
+      id: 6,
+      title: "Section 6: The Death March",
+      summary: "Prisoners are forced to run through snow. Anyone who stops is shot or trampled. Zalman dies of stomach cramps. Rabbi Eliahu searches for his son, who Eliezer realizes intentionally abandoned his father to increase his own survival odds. Eliezer prays (to the God he no longer believes in) never to do what the Rabbi's son did. They reach Gleiwitz. Juliek plays Beethoven on his violin before dying.",
+      analysis: [
+        "The story of Rabbi Eliahu's son serves as a dark foil to Eliezer. It exposes the terrible temptation to abandon the 'dead weight' of a weak parent to increase one's own chances of survival. Eliezer's prayer—to a God he supposedly doesn't believe in—shows that he fears his own survival instincts more than he fears death.",
+        "Juliek's violin performance is a final, tragic act of defiance and beauty. Playing Beethoven (German music, which Jews were forbidden to play) is a reclamation of his humanity and identity before he dies. It suggests that while the body can be crushed, the human spirit's need to create beauty persists until the very end.",
+        "The physical limits of the human body are tested against the sheer will to live. Men like Zalman, who are physically capable but mentally defeated, die instantly. Eliezer survives not because he is strong, but because his father's presence forces him to keep moving; they keep each other alive in a symbiotic cycle of responsibility."
+      ],
+      keyPoints: ["Rabbi Eliahu's son (Theme of Filial Betrayal).", "Juliek's violin (Art/Beauty crushed by death).", "Physical limits of survival."]
+    },
+    {
+      id: 7,
+      title: "Section 7: The Train to Buchenwald",
+      summary: "100 men per cattle car. Locals throw bread into the cars to watch them fight. Eliezer witnesses a son kill his father for a crust of bread, then the son is killed by others. Meir Katz, a strong man, loses hope and dies. Only 12 of the 100 men survive the trip to Buchenwald.",
+      analysis: [
+        "The dehumanization is now complete; the prisoners have been reduced to starving animals. The horrific scene of a son killing his father for a crust of bread is the ultimate realization of the fear Eliezer felt regarding Rabbi Eliahu's son. It shows that under enough pressure, the most sacred human bonds can shatter completely.",
+        "The scene where German locals throw bread into the cars serves as a critique of the bystander. They view the prisoners' desperate, deadly fight for food as a spectacle or entertainment. This highlights the disconnect between the suffering of the victims and the indifference (or cruelty) of the outside world.",
+        "Meir Katz's death proves that physical strength is meaningless without the will to live. He was the strongest among them, yet he broke because he lost hope over his son. This contrasts with Eliezer, who is physically weak but spiritually tethered to his father, proving that emotional connection is a stronger survival tool than muscle."
+      ],
+      keyPoints: ["Total dehumanization (fighting like beasts for bread).", "Father-Son bond tested to the extreme.", "Meir Katz's death symbolizes that physical strength isn't enough."]
+    },
+    {
+      id: 8,
+      title: "Section 8: Death of the Father",
+      summary: "At Buchenwald, Eliezer's father becomes sick with dysentery. Other prisoners beat him. He begs for water. An SS officer hits him with a club to silence him. The next morning, he is gone—taken to the crematorium. Eliezer does not weep; he feels a secret sense of relief, 'free at last'.",
+      analysis: [
+        "This is the climax of the father-son relationship theme. The role reversal is complete: the son has become the reluctant caregiver to the dying father. The SS officer's blow that silences the father mirrors the silence of the world, and Eliezer's inability to respond shows how the camp has finally broken his will to fight.",
+        "Eliezer's reaction to his father's death—'free at last'—is the source of his deepest, enduring guilt. It acknowledges the dark truth that his father had become a burden to his own survival. The Nazis succeeded in severing the bond, not just by killing the father, but by making the son secretly wish for it.",
+        "The lack of tears marks the emotional death that precedes physical liberation. Eliezer has no tears left because he has been hollowed out. He has survived the Holocaust, but he has lost the person he fought to save, rendering his survival functionally empty at this moment."
+      ],
+      keyPoints: ["The reversal of roles (Son caring for Father).", "The guilt of relief.", "The ultimate severing of ties."]
+    },
+    {
+      id: 9,
+      title: "Section 9: Liberation",
+      summary: "Eliezer stays in Buchenwald until April 11. The resistance takes control, and American tanks arrive. The prisoners' first thought is only of bread, not revenge. Eliezer looks in a mirror for the first time in a year and sees a 'corpse' staring back. The look in his eyes never leaves him.",
+      analysis: [
+        "The ending is stark and devoid of traditional victory. There is no joy in liberation, only the primal need for food. The absence of revenge suggests that the prisoners are too empty, too broken to feel anger. They have been reduced to biological needs, and it will take a long time to become 'human' again.",
+        "The final image of the corpse in the mirror is one of the most famous endings in literature. It suggests that the innocent, faithful boy named Eliezer died in the camps. The person who survived is someone else—a witness carrying the burden of the dead, forever separated from his former self.",
+        "The 'look in his eyes' that never leaves represents the permanent psychological scar of the Holocaust. It implies that while the physical torture has ended, the memory of it is eternal. The memoir ends not with a resolution, but with a haunting reflection on the irreversible damage done to the human spirit."
+      ],
+      keyPoints: ["Absence of revenge.", "The mirror image (The death of the old Eliezer).", "Permanent psychological scar."]
+    }
+  ];
+
+  const literaryDevices = [
+    {
+      term: "Foreshadowing",
+      definition: "Hints of what is to come in the action of a play or a story.",
+      example: "Madame Schächter screaming 'Fire!' on the train foreshadows the crematoria they are about to see at Birkenau."
+    },
+    {
+      term: "Irony",
+      definition: "A contrast between expectation and reality.",
+      example: "Eliezer leaves the infirmary to avoid death, but the infirmary is liberated by Russians two days later. The sign 'WARNING: DANGER OF DEATH' at Auschwitz is ironic because the entire camp is a death factory."
+    },
+    {
+      term: "Symbolism",
+      definition: "Using an object or action that means something more than its literal meaning.",
+      example: "'Night' (darkness/faithlessness), 'Fire' (destruction/death), 'Violin' (beauty/humanity), 'Spoon and Knife' (inheritance/survival)."
+    },
+    {
+      term: "Anaphora",
+      definition: "The repetition of a word or phrase at the beginning of successive clauses for emphasis.",
+      example: "'Never shall I forget that night... Never shall I forget that smoke... Never shall I forget the small faces...'"
+    },
+    {
+      term: "Metaphor",
+      definition: "A direct comparison between two unrelated things without using 'like' or 'as'.",
+      example: "'The world was a cattle wagon hermetically sealed.' (Compares the world to the train car, emphasizing entrapment)."
+    },
+    {
+      term: "Personification",
+      definition: "Giving human characteristics to inanimate objects or abstract ideas.",
+      example: "'Death wrapped itself around me till I was stifled.' (Death is described as a physical being)."
+    },
+    {
+      term: "Juxtaposition",
+      definition: "Two contrasting things placed close together to highlight their differences.",
+      example: "The beautiful setting sun or snow-covered landscape vs. the marching dead and smoke of the crematoria."
+    },
+    {
+      term: "Allusion (Biblical)",
+      definition: "A reference to a well-known person, place, event, literary work, or work of art.",
+      example: "The Binding of Isaac (Akedah). Unlike Abraham who was stopped by God from killing his son, in the camps, fathers and sons are betrayed and killed without divine intervention."
+    },
+    {
+      term: "Synecdoche",
+      definition: "A figure of speech in which a part is made to represent the whole.",
+      example: "Wiesel often refers to the prisoners as 'stomachs' or 'bodies', indicating that their hunger has reduced their entire existence to a single organ."
+    },
+    {
+      term: "Rhetorical Question",
+      definition: "A question asked in order to create a dramatic effect or to make a point rather than to get an answer.",
+      example: "'Where is God? Where is He?' (Asked by a prisoner during the hanging of the pipel)."
+    },
+    {
+      term: "Motif",
+      definition: "A recurring element (image, sound, action) that has symbolic significance.",
+      example: "Eyes (often described as 'blank', 'dead', or 'veiled'), Night/Darkness, Silence."
+    }
+  ];
+
+  const vocabulary = [
+    { word: "Anti-Semitism", def: "Hostility to or prejudice against Jewish people." },
+    { word: "Automatons", def: "People who act in a mechanical or machine-like way; how Wiesel describes the marching prisoners." },
+    { word: "Beadle", def: "A ceremonial officer of a church or synagogue. (Moishe)" },
+    { word: "Billeted", def: "Lodge (soldiers) in a particular place, especially a civilian's house or other non-military facility." },
+    { word: "Blandishment", def: "A flattering or pleasing statement or action used to persuade someone gently to do something." },
+    { word: "Cabal / Kabbalah", def: "The ancient Jewish tradition of mystical interpretation of the Bible." },
+    { word: "Crematory", def: "A place where a dead person's body is cremated (burned)." },
+    { word: "Dysentery", def: "Infection of the intestines resulting in severe diarrhea with the presence of blood and mucus." },
+    { word: "Firmament", def: "The heavens or the sky, especially when regarded as a tangible thing." },
+    { word: "Gestapo", def: "The official secret police of Nazi Germany." },
+    { word: "Ghetto", def: "A part of a city, especially a slum area, occupied by a minority group or groups." },
+    { word: "Hasidic", def: "Relating to a Jewish sect of mystics, originating in Poland in the 18th century." },
+    { word: "Kaddish", def: "An ancient Jewish prayer recited for the dead." },
+    { word: "Kapo", def: "A prisoner in a Nazi camp who was assigned by the SS guards to supervise forced labor." },
+    { word: "Kommando", def: "A basic unit of organization of slave laborers in Nazi concentration camps." },
+    { word: "Lorry", def: "A large, heavy motor vehicle for transporting goods or troops; a truck." },
+    { word: "Blockälteste", def: "A block leader in the concentration camp." },
+    { word: "Pipel", def: "An attractive male child who receives special favor or privileges by maintaining a relationship with another detainee." },
+    { word: "Phylacteries", def: "Small leather boxes containing Hebrew texts on vellum, worn by Jewish men at morning prayer." },
+    { word: "Premonition", def: "A strong feeling that something is about to happen, especially something unpleasant." },
+    { word: "SS (Schutzstaffel)", def: "An elite major paramilitary organization under Adolf Hitler." },
+    { word: "Selection", def: "The process by which SS doctors selected who would live (work) and who would die (gas chambers)." },
+    { word: "Talmud", def: "The body of Jewish civil and ceremonial law and legend." },
+    { word: "Truncheon", def: "A short, thick stick carried as a weapon by a police officer or guard." },
+    { word: "Waiflike", def: "Somebody (usually a young person) who is thin and looks unhealthy or uncared for." },
+    { word: "Zohar", def: "The chief text of the Jewish Kabbalah." }
+  ];
+
+  const themes = [
+    {
+      title: "Silence",
+      icon: <Music className="w-6 h-6" />,
+      content: "Silence appears in two forms: the silence of the victims (fear/inability to speak) and the silence of God. Eliezer cannot understand how the world stays silent while these atrocities happen."
+    },
+    {
+      title: "Fire",
+      icon: <Flame className="w-6 h-6" />,
+      content: "Fire symbolizes the Nazis' cruel power and the literal destruction of the Jews in the crematoria. It is the agent of death that consumes faith."
+    },
+    {
+      title: "Night",
+      icon: <Book className="w-6 h-6" />,
+      content: "The title symbolizes the darkness of the soul and the loss of faith. It represents a world without God's presence, an endless nightmare."
+    },
+    {
+      title: "Father-Son Bond",
+      icon: <Brain className="w-6 h-6" />,
+      content: "The relationship is constant. While other sons abandon fathers (Rabbi Eliahu's son) or kill them (train bread incident), Eliezer maintains the bond, though it becomes a burden he feels guilty about."
+    }
+  ];
+
+  // STIMULUS-BASED & DEEP ANALYSIS QUESTIONS
+  const quizQuestions = [
+    // Section 1: Sighet
+    {
+        stimulus: "“The yellow star? So what? It’s not lethal...” (Poor Father! Of what then did you die?)",
+        q: "Which literary device is most prominent in Eliezer's retrospective comment in parentheses?",
+        o: ["Metaphor", "Dramatic Irony", "Simile", "Personification"],
+        c: 1
+    },
+    {
+        stimulus: "“Moishe was not the same. The joy in his eyes was gone. He no longer sang. He no longer mentioned either God or Kabbalah. He spoke only of what he had seen.”",
+        q: "What does Moishe's transformation primarily symbolize in the opening section?",
+        o: ["The physical toll of travel", "The loss of innocence and the death of the soul", "The confusion of the elderly", "The importance of storytelling"],
+        c: 1
+    },
+    {
+        q: "Why is the Sighet community's reaction to Moishe's warning described as 'Denial' rather than 'Ignorance'?",
+        o: ["They didn't hear him", "They actively chose to rationalize away the horror because it was too terrible to believe", "They thought he was lying for money", "They were forbidden from listening"],
+        c: 1
+    },
+    // Section 2: Train
+    {
+        stimulus: "“Look at the fire! Look at the flames! Flames everywhere...”",
+        q: "Madame Schächter's screaming on the train is an example of which literary device?",
+        o: ["Flashback", "Foreshadowing", "Hyperbole", "Alliteration"],
+        c: 1
+    },
+    {
+        stimulus: "“In front of us, those flames. In the air, the smell of burning flesh. It must have been around midnight. We had arrived. In Birkenau.”",
+        q: "What is the significance of the arrival time being 'midnight'?",
+        o: ["It was simply the train schedule", "It reinforces the motif of 'Night' and darkness enveloping their lives", "It shows the efficiency of the Germans", "It suggests they were tired"],
+        c: 1
+    },
+    // Section 3: Birkenau
+    {
+        stimulus: "“Never shall I forget that night, the first night in camp, that turned my life into one long night seven times sealed.”",
+        q: "The repetition of 'Never shall I forget' is known as:",
+        o: ["Anaphora", "Allegory", "Antagonist", "Allusion"],
+        c: 0
+    },
+    {
+        q: "When Eliezer says his 'soul had been invaded—and devoured—by a black flame', what does the 'black flame' metaphorically represent?",
+        o: ["The smoke from the chimney", "The physical fire of the pit", "The void of faith and the destruction of his belief in God's justice", "The darkness of the barracks"],
+        c: 2
+    },
+    // Section 4: Buna
+    {
+        stimulus: "“I was nothing but a body. Perhaps even less: a famished stomach. The stomach alone was measuring time.”",
+        q: "This quote illustrates which effect of the concentration camp on the prisoners?",
+        o: ["Increased religious fervor", "Total reduction to primal/biological needs (Dehumanization)", "Enhanced sense of community", "Improved physical discipline"],
+        c: 1
+    },
+    {
+        stimulus: "“Where is He? Here He is—He is hanging here on this gallows...”",
+        q: "Eliezer says this after the hanging of the Pipel. What does this signify about his theology?",
+        o: ["He believes God is punishing the boy", "He believes God has physically died/is absent from the world of the living", "He sees the boy as a martyr for God", "He believes the gallows are holy"],
+        c: 1
+    },
+    {
+        q: "How does the 'Gold Crown' episode with Franek explore the theme of family bonds?",
+        o: ["It shows how strong the bond is", "It shows how the Nazis used family connections (torturing the father) to manipulate/break the prisoners", "It shows Franek was actually helpful", "It shows Eliezer didn't care about his teeth"],
+        c: 1
+    },
+    // Section 5: Rosh Hashanah
+    {
+        stimulus: "“I was the accuser, God the accused. My eyes had opened and I was alone, terribly alone in a world without God, without man.”",
+        q: "What is the tone of this passage during the Rosh Hashanah service?",
+        o: ["Reverent and hopeful", "Confused and questioning", "Defiant and isolated", "Sad and accepting"],
+        c: 2
+    },
+    {
+        stimulus: "“We were masters of nature, masters of the world. We had transcended everything—death, fatigue, our natural needs. We were stronger than cold and hunger...”",
+        q: "Wiesel describes the prisoners during the forced march as 'masters'. Why is this ironic?",
+        o: ["Because they were actually slaves close to death", "Because they had weapons", "Because they were well fed", "Because they had defeated the guards"],
+        c: 0
+    },
+    // Section 6: Death March
+    {
+        q: "The incident with Rabbi Eliahu's son serves primarily as:",
+        o: ["A model for Eliezer to follow", "A foil/warning of what Eliezer fears becoming (a son who abandons his father)", "A story of hope", "A proof of religious faith"],
+        c: 1
+    },
+    {
+        stimulus: "“All I could hear was the violin, and it was as if Juliek's soul had become his bow. He was playing his life. His whole being was gliding over the strings.”",
+        q: "What does Juliek's violin symbolize in this moment of death?",
+        o: ["A valuable item to trade", "The final, defiant assertion of humanity and beauty amidst total destruction", "A distraction for the guards", "A way to earn extra bread"],
+        c: 1
+    },
+    // Section 7: Train to Buchenwald
+    {
+        stimulus: "“Meir, my little Meir! Don't you recognize me... You're killing your father... I have bread... for you too... for you too...”",
+        q: "This scene on the train to Buchenwald represents the ultimate completion of which theme?",
+        o: ["The victory of the spirit", "The dehumanization of man to the level of beast", "The importance of sharing", "The failure of the German transport system"],
+        c: 1
+    },
+    {
+        stimulus: "“In the wagon where the bread had landed, a battle had ensued. Men were hurling themselves against each other... Beasts of prey unleashed.”",
+        q: "Wiesel uses the metaphor 'Beasts of prey' to suggest:",
+        o: ["The prisoners were strong like lions", "The prisoners were hunting Germans", "Civilization had been entirely stripped away by hunger", "The prisoners were acting normally"],
+        c: 2
+    },
+    // Section 8: Death of Father
+    {
+        stimulus: "“I did not weep, and it pained me that I could not weep. But I was out of tears. And deep inside me, if I could have searched the recesses of my feeble conscience, I might have found something like: Free at last!...”",
+        q: "What complex emotion is Eliezer expressing here?",
+        o: ["Pure joy", "Indifference", "Guilt over his own relief at being burdened no longer", "Anger at the doctors"],
+        c: 2
+    },
+    // Section 9: Liberation
+    {
+        stimulus: "“From the depths of the mirror, a corpse was contemplating me. The look in his eyes as he gazed at me has never left me.”",
+        q: "The 'corpse' in the mirror suggests that:",
+        o: ["Eliezer is literally dead", "The spiritual/innocent version of Eliezer died in the camps", "The mirror was dirty", "He looked like his father"],
+        c: 1
+    },
+    // General
+    {
+        q: "Which word best describes the tone of the memoir?",
+        o: ["Optimistic", "Somber and Reflective", "Adventure", "Romantic"],
+        c: 1
+    },
+    {
+        q: "What is the primary function of the 'Night' motif throughout the book?",
+        o: ["To tell the time", "To represent the period when bad things happen", "To symbolize a world without God's presence", "To show the lack of electricity"],
+        c: 2
+    },
+    {
+        q: "When Wiesel speaks of the 'kingdom of night', he is using which literary device?",
+        o: ["Simile", "Metaphor", "Onomatopoeia", "Oxymoron"],
+        c: 1
+    },
+    {
+        stimulus: "“I pinched myself: Was I still alive? Was I awake? How was it possible that men, women, and children were being burned and that the world kept silent?”",
+        q: "This quote highlights the theme of:",
+        o: ["Complicity and Silence", "Hunger", "Family", "War Strategy"],
+        c: 0
+    }
+  ];
+
+  // --- HANDLERS ---
+
+  const handleAnswerClick = (index) => {
+    setSelectedAnswer(index);
+    if (index === quizQuestions[currentQuestion].c) {
+      setQuizScore(quizScore + 1);
+    }
+    
+    setTimeout(() => {
+      const nextQuestion = currentQuestion + 1;
+      if (nextQuestion < quizQuestions.length) {
+        setCurrentQuestion(nextQuestion);
+        setSelectedAnswer(null);
+      } else {
+        setShowScore(true);
+      }
+    }, 1500); // Increased delay to allow reading the answer state
+  };
+
+  const resetQuiz = () => {
+    setQuizScore(0);
+    setCurrentQuestion(0);
+    setShowScore(false);
+    setSelectedAnswer(null);
+  };
+
+  // --- RENDERERS ---
+
+  const renderChapters = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
+      {chapters.map((chapter) => (
+        <div 
+          key={chapter.id}
+          onClick={() => setSelectedChapter(chapter)}
+          className="group relative bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-6 rounded-xl hover:bg-slate-700/50 hover:border-amber-500/50 transition-all cursor-pointer overflow-hidden shadow-lg flex flex-col justify-between"
+        >
+          <div>
+            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-slate-700 to-transparent group-hover:from-amber-600 transition-all"></div>
+            <h3 className="text-xl font-serif text-slate-100 mb-2 group-hover:text-amber-400 transition-colors">{chapter.title}</h3>
+            <p className="text-slate-400 text-sm line-clamp-3 mb-4">{chapter.summary}</p>
+          </div>
+          <div className="mt-auto flex items-center text-amber-500/80 text-xs font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+            Read Analysis <ChevronRight className="w-3 h-3 ml-1" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderSelectedChapter = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="bg-slate-900 border border-slate-700 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl relative">
+        <button 
+          onClick={() => setSelectedChapter(null)}
+          className="sticky top-4 left-[92%] md:left-[95%] z-50 p-2 bg-slate-800 rounded-full hover:bg-slate-700 text-slate-300 transition-colors shadow-lg border border-slate-700"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        
+        <div className="p-8 md:p-10 pt-6">
+          <span className="text-amber-500 text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Detailed Analysis</span>
+          <h2 className="text-3xl md:text-4xl font-serif text-white mb-8 border-b border-slate-800 pb-4">{selectedChapter.title}</h2>
+          
+          <div className="space-y-8">
+            <section>
+              <h3 className="text-lg font-semibold text-slate-200 mb-3 flex items-center"><Book className="w-4 h-4 mr-2 text-slate-500"/>Plot Summary</h3>
+              <p className="text-slate-300 leading-relaxed text-lg">{selectedChapter.summary}</p>
+            </section>
+            
+            <section className="bg-amber-950/20 border-l-4 border-amber-600 p-6 rounded-r-xl">
+              <h3 className="text-lg font-semibold text-amber-400 mb-3 flex items-center"><Brain className="w-5 h-5 mr-2"/> Deep Analysis</h3>
+              <ul className="space-y-4">
+                {selectedChapter.analysis.map((point, index) => (
+                    <li key={index} className="flex items-start text-slate-300 leading-relaxed">
+                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2.5 mr-3 flex-shrink-0"></span>
+                        {point}
+                    </li>
+                ))}
+              </ul>
+            </section>
+
+            <div className="bg-slate-800/50 rounded-xl p-6">
+              <h4 className="flex items-center text-slate-100 font-semibold mb-4">
+                <Star className="w-4 h-4 mr-2 text-yellow-500" /> Key Points to Remember
+              </h4>
+              <ul className="grid md:grid-cols-1 gap-3">
+                {selectedChapter.keyPoints.map((point, idx) => (
+                  <li key={idx} className="flex items-start text-slate-400 text-sm">
+                    <span className="w-1.5 h-1.5 bg-slate-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderLiteraryDevices = () => (
+    <div className="animate-in slide-in-from-bottom-4 duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {literaryDevices.map((device, idx) => (
+            <div key={idx} className="bg-slate-800/40 border border-slate-700 p-6 rounded-xl hover:bg-slate-800/60 transition-colors">
+            <div className="flex items-center mb-3">
+                <Feather className="w-5 h-5 text-amber-500 mr-2" />
+                <h3 className="text-xl font-serif text-slate-100">{device.term}</h3>
+            </div>
+            <p className="text-xs text-amber-500/80 uppercase tracking-wider mb-2 font-bold">Definition</p>
+            <p className="text-slate-300 mb-4 text-sm">{device.definition}</p>
+            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800/50">
+                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1 font-bold">Example from Text</p>
+                <p className="text-slate-400 italic text-sm">"{device.example}"</p>
+            </div>
+            </div>
+        ))}
+      </div>
+       <div className="mt-12">
+        <h3 className="text-2xl font-serif text-white mb-6 border-b border-slate-800 pb-4">Major Themes</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {themes.map((theme, idx) => (
+                <div key={idx} className="bg-slate-800/40 border border-slate-700 p-6 rounded-xl">
+                <div className="flex items-center mb-4">
+                    <div className="p-2 bg-slate-900 rounded-lg text-amber-500 mr-3 border border-slate-700">
+                        {theme.icon}
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-200">{theme.title}</h3>
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed">{theme.content}</p>
+                </div>
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderVocabulary = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in slide-in-from-bottom-4 duration-500">
+        {vocabulary.map((item, idx) => (
+            <div key={idx} className="bg-slate-900 border border-slate-800 p-5 rounded-lg hover:border-amber-500/30 transition-colors group">
+                <div className="flex items-start justify-between">
+                    <h3 className="text-lg font-bold text-amber-500 group-hover:text-amber-400 mb-2">{item.word}</h3>
+                    <Hash className="w-4 h-4 text-slate-700 group-hover:text-slate-600" />
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed">{item.def}</p>
+            </div>
+        ))}
+    </div>
+  );
+
+  const renderQuiz = () => (
+    <div className="max-w-3xl mx-auto animate-in zoom-in-95 duration-300">
+      {showScore ? (
+        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center shadow-2xl">
+          <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-500">
+            <CheckCircle className="w-10 h-10" />
+          </div>
+          <h2 className="text-3xl font-serif text-white mb-2">Quiz Complete</h2>
+          <p className="text-slate-400 mb-8">You scored <span className="text-amber-500 font-bold text-xl">{quizScore}</span> out of {quizQuestions.length}</p>
+          <div className="w-full bg-slate-700 h-2 rounded-full mb-8 overflow-hidden">
+             <div className="h-full bg-amber-500" style={{width: `${(quizScore / quizQuestions.length) * 100}%`}}></div>
+          </div>
+          <button 
+            onClick={resetQuiz}
+            className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-3 rounded-lg font-medium transition-all"
+          >
+            Retake Quiz
+          </button>
+        </div>
+      ) : (
+        <div className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl relative">
+          <div className="bg-slate-900/50 p-4 border-b border-slate-700 flex justify-between items-center">
+            <span className="text-slate-400 text-xs font-bold tracking-widest">QUESTION {currentQuestion + 1} / {quizQuestions.length}</span>
+            <span className="text-amber-500 text-xs font-bold">SCORE: {quizScore}</span>
+          </div>
+          
+          <div className="p-6 md:p-10">
+            {quizQuestions[currentQuestion].stimulus && (
+                <div className="bg-slate-900/50 p-6 rounded-lg mb-6 border-l-4 border-amber-500 relative">
+                    <Quote className="w-8 h-8 text-amber-900/30 absolute top-2 right-2" />
+                    <p className="italic text-slate-300 text-base md:text-lg font-serif leading-relaxed">
+                        {quizQuestions[currentQuestion].stimulus}
+                    </p>
+                </div>
+            )}
+
+            <h3 className="text-lg md:text-xl text-white font-medium mb-6 leading-relaxed">
+              {quizQuestions[currentQuestion].q}
+            </h3>
+            
+            <div className="space-y-2">
+              {quizQuestions[currentQuestion].o.map((option, idx) => {
+                const isSelected = selectedAnswer === idx;
+                const isCorrect = idx === quizQuestions[currentQuestion].c;
+                let btnClass = "w-full text-left p-3 md:p-4 rounded-xl border transition-all duration-200 flex items-center justify-between group text-sm md:text-base ";
+                
+                if (selectedAnswer !== null) {
+                  if (isSelected && isCorrect) btnClass += "bg-green-500/20 border-green-500 text-green-100";
+                  else if (isSelected && !isCorrect) btnClass += "bg-red-500/20 border-red-500 text-red-100";
+                  else if (!isSelected && isCorrect) btnClass += "bg-green-500/10 border-green-500/50 text-green-100 opacity-70";
+                  else btnClass += "border-slate-700 opacity-30";
+                } else {
+                  btnClass += "bg-slate-700/30 border-slate-600 hover:bg-slate-700 hover:border-amber-500/50 text-slate-200";
+                }
+
+                return (
+                  <button 
+                    key={idx}
+                    onClick={() => handleAnswerClick(idx)}
+                    disabled={selectedAnswer !== null}
+                    className={btnClass}
+                  >
+                    <span>{option}</span>
+                    {selectedAnswer !== null && isCorrect && <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 ml-2" />}
+                    {selectedAnswer !== null && isSelected && !isCorrect && <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 ml-2" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="bg-slate-900/30 p-0 h-1.5 w-full absolute bottom-0 left-0">
+            <div 
+              className="h-full bg-amber-600 transition-all duration-300"
+              style={{ width: `${((currentQuestion + 1) / quizQuestions.length) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-amber-500/30">
+      
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+        <div className="max-w-6xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-amber-600 rounded flex items-center justify-center text-white font-serif font-bold text-lg md:text-xl">N</div>
+            <div>
+              <h1 className="text-lg md:text-xl font-bold text-slate-100 tracking-tight">Night</h1>
+              <p className="text-[10px] md:text-xs text-slate-500 uppercase tracking-widest">Elie Wiesel</p>
+            </div>
+          </div>
+
+          <nav className="hidden md:flex bg-slate-900/50 p-1 rounded-lg border border-slate-800">
+            {[
+              { id: 'chapters', label: 'Chapters', icon: BookOpen },
+              { id: 'themes', label: 'Lit. Devices', icon: Feather },
+              { id: 'vocab', label: 'Vocab', icon: Hash },
+              { id: 'quiz', label: 'Quiz (Analysis)', icon: CheckCircle }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${
+                  activeTab === tab.id 
+                    ? 'bg-slate-800 text-amber-500 shadow-sm' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <tab.icon className="w-4 h-4 mr-2" />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </header>
+      
+      {/* Mobile Tab Bar (Bottom) */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-slate-900 border-t border-slate-800 z-50 flex justify-between px-6 py-4 pb-6">
+        {[
+            { id: 'chapters', icon: BookOpen, label: 'Story' },
+            { id: 'themes', icon: Feather, label: 'Devices' },
+            { id: 'vocab', icon: Hash, label: 'Vocab' },
+            { id: 'quiz', icon: CheckCircle, label: 'Quiz' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex flex-col items-center justify-center w-12 ${activeTab === tab.id ? 'text-amber-500' : 'text-slate-500'}`}
+          >
+            <tab.icon className={`w-6 h-6 mb-1 ${activeTab === tab.id ? 'fill-current' : ''}`} />
+            <span className="text-[10px] font-bold uppercase">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-6 py-8 md:py-12 pb-32 md:pb-12">
+        <div className="mb-10 text-center max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-serif font-medium text-white mb-4 animate-in fade-in duration-700">
+            {activeTab === 'chapters' && "Timeline & Analysis"}
+            {activeTab === 'themes' && "Literary Devices & Themes"}
+            {activeTab === 'vocab' && "Vocabulary & Terms"}
+            {activeTab === 'quiz' && "Analysis Exam"}
+          </h2>
+          <p className="text-slate-400 text-sm md:text-lg animate-in fade-in duration-700 delay-100">
+            {activeTab === 'chapters' && "Explore the deeper meaning behind each section of the memoir."}
+            {activeTab === 'themes' && "Master the symbolism, irony, and rhetorical devices used by Wiesel."}
+            {activeTab === 'vocab' && "Key terms, German phrases, and Jewish concepts found in the text."}
+            {activeTab === 'quiz' && "Stimulus-based questions requiring deep textual analysis."}
+          </p>
+        </div>
+
+        {activeTab === 'chapters' && renderChapters()}
+        {activeTab === 'themes' && renderLiteraryDevices()}
+        {activeTab === 'vocab' && renderVocabulary()}
+        {activeTab === 'quiz' && renderQuiz()}
+
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-900 bg-slate-950 py-12 text-center text-slate-600 text-sm hidden md:block">
+        <p>Created for study purposes based on the memoir "Night" by Elie Wiesel.</p>
+        <p className="mt-2">Remember: "To forget the dead would be akin to killing them a second time."</p>
+      </footer>
+
+      {selectedChapter && renderSelectedChapter()}
+    </div>
+  );
+};
+
+export default NightStudyGuide;
